@@ -3,7 +3,6 @@ import cmd
 #=========================== Classe Call =============================    
 
 class Call:
-        # Constructor
         def __init__(self, id):
             self.id = id
             self.operator = ""
@@ -26,7 +25,6 @@ class Call:
 ##=========================== Classe Operator =============================                
             
 class Operator:
-        # Constructor
         def __init__(self, id):
             self.id = id
             self.state = "available"
