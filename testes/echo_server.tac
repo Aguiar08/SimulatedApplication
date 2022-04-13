@@ -1,6 +1,6 @@
 from twisted.application import internet, service
-from echo import EchoFactory
+from server import callFactory
 
 application = service.Application("server")
-echoService = internet.TCPServer(8000, callClientFactory())
+echoService = internet.TCPServer(5678, callFactory())
 echoService.setServiceParent(application)

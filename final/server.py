@@ -26,6 +26,10 @@ class Call:
         def callWaiting(self):
             ret = ("Call "+ self.id +" waiting in queue\n")
             return(ret)
+        def callIgnored(self):
+            self.state = "ignored"
+            ret = ("Call "+ self.id +" ignored by operator " + self.operator+ "\n")
+            return(ret)
             
 ##=========================== Classe Operator =============================                
             
@@ -69,6 +73,8 @@ class CallProtocol(protocol.Protocol):
             self.reject(arg["id"], msg)
         elif(arg["command"] == "hangup"):
             self.hangup(arg["id"], msg)
+        elif(arg["command"] == "ignored"):
+            self.ignored(arg["id"], msg)
         message = ""
         for i in msg:
             message += i
@@ -78,6 +84,19 @@ class CallProtocol(protocol.Protocol):
     def connectionLost(self, reason):
         self.factory.numConnections -= 1
 
+    def ignored(self, id, msg):
+        arg = self.findCall(id)
+        if(arg.state == "calling"):
+            msg.append(arg.callIgnored())
+            for operator in self.factory.operators:
+                if (operator.call == arg.id):
+                    operator.callHangUp()
+            if(len(self.factory.queue) > 0):
+                for i in range(len(self.factory.queue)-1):
+                    if(self.factory.queue[i].id == arg.id):
+                        self.factory.queue.pop(i)
+            return 
+        
     def call(self, id, msg): 
         call = Call(id)
         msg.append(call.callMade())
@@ -139,7 +158,7 @@ class CallProtocol(protocol.Protocol):
         for c in self.factory.calls:
             if(arg == c.id):
                 return c
-            
+                  
 class CallFactory(Factory):
     numConnections = 0
     calls = []

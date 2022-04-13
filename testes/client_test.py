@@ -1,7 +1,7 @@
 import cmd
 import json
 from twisted.internet import reactor, protocol
-
+from time import sleep
 
 class Commands(cmd.Cmd):
     
@@ -45,12 +45,19 @@ class callProtocol(protocol.Protocol):
     def dataReceived(self, data):
         aux = json.loads(data.decode("utf-8"))
         print(aux["message"])
+        self.transport.loseConnection()
+        if("received" in aux["message"]):
+            self.ignored(self.factory.quote)
         line = input()
         command = Commands()
         a = command.onecmd(line)
         reactor.connectTCP('localhost', 5678, callClientFactory(a))
-        self.transport.loseConnection()
-        
+
+    def ignored(self, data):
+        sleep(5)
+        a = json.dumps({"command" : "ignored" , "id" : (json.loads(data.decode("utf-8")))["id"]})
+        a = a.encode("utf-8")
+        reactor.connectTCP('localhost', 5678, callClientFactory(a))
 
 class callClientFactory(protocol.ClientFactory):
     def __init__(self, quote):
@@ -65,5 +72,8 @@ class callClientFactory(protocol.ClientFactory):
     def clientConnectionLost(self, connector, reason):
         print('connection lost:', reason.getErrorMessage())
 
-reactor.connectTCP('localhost', 5678, callClientFactory("Start"))
+line = input()
+command = Commands()
+a = command.onecmd(line)
+reactor.connectTCP('localhost', 5678, callClientFactory(a))
 reactor.run()
