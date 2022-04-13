@@ -14,6 +14,7 @@ class QuoteProtocol(protocol.Protocol):
         print("> Received: ``%s''\n>  Sending: ``%s''" % (
             data, self.getQuote()))
         self.transport.write(self.getQuote())
+        self.transport.write(self.getQuote())
         self.updateQuote(data)
 
     def connectionLost(self, reason):
@@ -29,10 +30,10 @@ class QuoteFactory(Factory):
     numConnections = 0
 
     def __init__(self, quote=None):
-        self.quote = quote or "An apple a day keeps the doctor away"
+        self.quote = quote or b"An apple a day keeps the doctor away"
 
     def buildProtocol(self, addr):
         return QuoteProtocol(self)
 
-reactor.listenTCP(8000, QuoteFactory())
+reactor.listenTCP(5678, QuoteFactory())
 reactor.run()

@@ -132,5 +132,6 @@ class Commands(cmd.Cmd):
     def do_hangup(self, arg):
         hangup(arg)
         
-Commands().cmdloop()
+a = "call 1"
+Commands().onecmd(a)
         

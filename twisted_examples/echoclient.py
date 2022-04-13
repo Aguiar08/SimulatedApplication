@@ -9,9 +9,10 @@ class QuoteProtocol(protocol.Protocol):
 
     def sendQuote(self):
         self.transport.write(self.factory.quote)
+        self.transport.write(self.factory.quote)
 
     def dataReceived(self, data):
-        print( "Received quote:", data)
+        print( "Received quote:", data.decode("utf-8"))
         self.transport.loseConnection()
 
 class QuoteClientFactory(protocol.ClientFactory):
@@ -36,12 +37,12 @@ def maybeStopReactor():
         reactor.stop()
 
 quotes = [
-    "You snooze you lose",
-    "The early bird gets the worm",
-    "Carpe diem"
+    b"You snooze you lose",
+    b"The early bird gets the worm",
+    b"Carpe diem"
 ]
 quote_counter = len(quotes)
 
 for quote in quotes:
-    reactor.connectTCP('localhost', 8000, QuoteClientFactory(quote))
+    reactor.connectTCP('localhost', 5678, QuoteClientFactory(quote))
 reactor.run()
